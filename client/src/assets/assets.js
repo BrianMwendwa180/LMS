@@ -10,6 +10,8 @@ import academy from './academy.png'
 
 import star from './star.png'
 import arrow from './arrow.png'
+import downarrow from './down-arrow.png'
+import play_icon from './play_icon.png'
 
 const dummyTestimonial = [
   {
@@ -495,6 +497,8 @@ const dummyCourses = [
   }
 ];
 
+
+
 // Arrow icon function
 const arrowIcon = () => arrow;
 
@@ -563,3 +567,37 @@ export default {
   // Arrow icon function
   arrowIcon,
 };
+
+
+const courses = [
+  {
+    id: 1,
+    title: "Introduction to Programming",
+    description: "Learn the basics of programming using Python. This course covers variables, loops, functions, and more.",
+    instructor: "Jane Doe",
+    duration: "6 weeks",
+    image: "https://via.placeholder.com/200x120?text=Programming"
+  },
+  {
+    id: 2,
+    title: "Web Development Fundamentals",
+    description: "Explore HTML, CSS, and JavaScript to build interactive web pages from scratch.",
+    instructor: "John Smith",
+    duration: "8 weeks",
+    image: "https://via.placeholder.com/200x120?text=Web+Dev"
+  }
+  // Add more courses as needed
+]
+
+function getCourseById(id) {
+  return courses.find(course => course.id === id)
+}
+
+const assets = {
+  getCourseById,
+  // ...other exports...
+}
+
+
+
+// ...existing code...
