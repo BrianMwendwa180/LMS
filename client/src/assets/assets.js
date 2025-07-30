@@ -12,6 +12,7 @@ import star from './star.png'
 import arrow from './arrow.png'
 import downarrow from './down-arrow.png'
 import play_icon from './play_icon.png'
+import coursethumbnail from './coursethumbnail.png'
 
 const dummyTestimonial = [
   {

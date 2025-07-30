@@ -4,3 +4,12 @@
 * {
   font-family:Outfit;
 }
+
+@layer base{
+  html {
+    scroll-behavior: smooth;
+  }
+}
+::-webkit-scrollbar {
+  display: none;
+}
