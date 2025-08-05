@@ -13,6 +13,23 @@ import arrow from './arrow.png'
 import downarrow from './down-arrow.png'
 import play_icon from './play_icon.png'
 import coursethumbnail from './coursethumbnail.png'
+import blue_tick from './blue_tick.png'
+import home_icon from './home_icon.png'
+import add_icon from './add_icon.png'
+import my_course_icon from './my_course_icon.png'
+import person_tick_icon from './person_tick_icon.png'
+import profile_img from './profile_img.png'
+import item_icon from './item_icon.png'
+import facebook_icon from './facebook_icon.png'
+import twitter_icon from './twitter_icon.png'
+import instagram_icon from './instagram_icon.png'
+import appointments_icon from './appointment_icon.png'
+import earning_icon from './earning_icon.png'
+import patients_icon from './patients_icon.png'
+import file_upload_icon from './file_upload_icon.png'
+import down_icon from './down_icon .png'
+import cross_icon from './cross_icon.png'
+
 
 const dummyTestimonial = [
   {
@@ -587,8 +604,109 @@ const courses = [
     duration: "8 weeks",
     image: "https://via.placeholder.com/200x120?text=Web+Dev"
   }
+
+  
   // Add more courses as needed
 ]
+
+export const dummyEducatorData = {
+  id: 1,
+  fullName: "Dr. Sarah Johnson",
+  email: "sarah.johnson@academy.edu",
+  department: "Computer Science",
+  position: "Senior Lecturer",
+  specialization: "Web Development & Software Engineering",
+  yearsOfExperience: 8,
+  profileImage: "/images/educator-profile.jpg",
+  bio: "Passionate educator with expertise in modern web technologies and software development practices.",
+  courses: [
+    "Introduction to React",
+    "Advanced JavaScript",
+    "Full Stack Development",
+    "Software Engineering Principles"
+  ],
+  qualifications: [
+    "PhD in Computer Science",
+    "Master's in Software Engineering",
+    "Certified React Developer"
+  ],
+  contactInfo: {
+    phone: "+1-555-0123",
+    office: "Room 204, Tech Building",
+    officeHours: "Mon-Wed 2:00-4:00 PM"
+  }
+}
+
+// Dummy data - replace with actual data source
+export const dummyDashboardData = {
+  totalCourses: 10,
+  totalEarnings: 5000,
+  enrolledStudentsData: [
+    {
+      id: 1,
+      student: "John Smith",
+      courseTitle: "Complete JavaScript Mastery",
+      profile_img: profile_img
+    },
+    {
+      id: 2,
+      student: "Emma Johnson",
+      courseTitle: "Python for Data Science & AI",
+      profile_img: profile_img
+    },
+    {
+      id: 3,
+      student: "Michael Brown",
+      courseTitle: "React.js Complete Course",
+      profile_img: profile_img
+    },
+    {
+      id: 4,
+      student: "Sarah Davis",
+      courseTitle: "Node.js Backend Development",
+      profile_img: profile_img
+    },
+    {
+      id: 5,
+      student: "Robert Wilson",
+      courseTitle: "Full Stack Web Development Bootcamp",
+      profile_img: profile_img
+    }
+  ]
+}
+
+export const dummyStudentEnrolled = [
+  {
+    id: 1,
+    student: "John Smith",
+    courseTitle: "Complete JavaScript Mastery",
+    profile_img: profile_img
+  },
+  {
+    id: 2,
+    student: "Emma Johnson",
+    courseTitle: "Python for Data Science & AI",
+    profile_img: profile_img
+  },
+  {
+    id: 3,
+    student: "Michael Brown",
+    courseTitle: "React.js Complete Course",
+    profile_img: profile_img
+  },
+  {
+    id: 4,
+    student: "Sarah Davis",
+    courseTitle: "Node.js Backend Development",
+    profile_img: profile_img
+  },
+  {
+    id: 5,
+    student: "Robert Wilson",
+    courseTitle: "Full Stack Web Development Bootcamp",
+    profile_img: profile_img
+  }
+];
 
 function getCourseById(id) {
   return courses.find(course => course.id === id)
