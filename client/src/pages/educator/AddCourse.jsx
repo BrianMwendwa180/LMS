@@ -11,8 +11,8 @@ const AddCourse = () => {
   const editorRef = useRef(null);
 
   const [courseTitle, setCourseTitle] = useState('')
-  const [coursePrice, setCoursePrice] = useState(0)
-  const [discount, setDiscount] = useState(0)
+  const [coursePrice, setCoursePrice] = useState('')
+  const [discount, setDiscount] = useState('')
   const [image, setImage] = useState(null)
   const [chapters, setChapters] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
@@ -58,7 +58,7 @@ const handleLecture = (action, chapterId, lectureIndex) => {
     setShowPopup(true);
   } else if (action === 'remove') {
     setChapters(
-      chapter.map((chapter) => {
+      chapters.map((chapter) => {
         if (chapter.chapterId === chapterId) {
           chapter.chapterContent.splice(lectureIndex, 1);
         }
@@ -66,6 +66,36 @@ const handleLecture = (action, chapterId, lectureIndex) => {
       })
     );
   }
+};
+
+const addLecture = () => {
+  setChapters(
+    chapters.map((chapter) =>{
+      if (chapter.chapterId === currentChapterId) {
+        const newLecture = {
+          ...lectureDetails,
+          lectureOrder: chapter.chapterContent.length > 0 ? chapter.
+          chapterContent.slice(-1)[0].lectureOrder + 1 : 1,
+          lectureId: uniqid()
+        };
+        chapter.chapterContent.push(newLecture);
+      }
+      return chapter;
+    }
+    )
+  );
+  setShowPopup(false);
+  setLectureDetails({
+    lectureTitle: '',
+    lectureDuration:'',
+    lectureUrl: '',
+    isPreviewFree: false,
+
+  });
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault()
 };
 
 
@@ -82,7 +112,7 @@ const handleLecture = (action, chapterId, lectureIndex) => {
 return (
     <div className='h-screen overflow-scroll flex flex-col items-start
     justify-between md:p-8 md:pb-0 p-4 pt-8 pb-o'>
-     <form className='flex flex-col gap-4 max-w-md w-full text-gray-500'>
+     <form onSubmit={handleSubmit} className='flex flex-col gap-4 max-w-md w-full text-gray-500'>
       <div className='flex flex-col gap-1'>
         <p>Course Title</p>
         <input onChange={e => setCourseTitle(e.target.value)} value={courseTitle}
@@ -114,8 +144,7 @@ return (
             <input type="file" id='thumbnailImage' onChange={e => setImage(e.
               target.files[0]
             )} accept="image/*" hidden/>
-            <img className='max-h-10' src={image ? URL.createObjectURL(image) :
-              ''} alt=""/>
+            {image && <img className='max-h-10' src={URL.createObjectURL(image)} alt="Course thumbnail preview"/>}
             
             </label>
         </div>
@@ -123,7 +152,7 @@ return (
 
       <div>
         <p>Discount %</p>
-        <input onChage={e => setDiscount(e.target.value)} value={discount}
+        <input onChange={e => setDiscount(e.target.value)} value={discount}
         type="number" placeholder='0' min={0} max={100} className='outline-none
         md:py-2.5 py-2 w-28 px-3 rounded border border-gray-500' required/>
       </div>
@@ -133,7 +162,8 @@ return (
           <div key={chapterIndex} className='bg-white border rounded-lg mb-4'>
             <div className='flex justify-between items-center p-4 border-b'>
               <div className='flex items-center'>
-                <img src={down_icon} width={14} alt="" className={`mr-2 cursor-pointer transition-all ${chapter.collapsed &&
+                <img onClick={() => handleChapter('toggle', chapter.chapterId)}
+                src={down_icon} width={14} alt="" className={`mr-2 cursor-pointer transition-all ${chapter.collapsed &&
                   "-rotate-90" }`}/>
                
                 <span className='font-semibold'>{chapterIndex + 1} {chapter.
@@ -141,18 +171,19 @@ return (
 
               </div>
               <span className='text-gray-500'>{chapter.chapterContent.length} Lectures</span>
-              <img src={cross_icon} alt="" className='cursor-pointer w-3 h-3 md:w-4 md:h-4 hover:opacity-70 transition-opacity'/>
+              <img onClick={() => handleChapter('remove', chapter.chapterId)}
+              src={cross_icon} alt="" className='cursor-pointer w-3 h-3 md:w-4 md:h-4 hover:opacity-70 transition-opacity'/>
 
             </div>
             {!chapter.collapsed && (
               <div className='p-4'>
-                {chapter.chapterContent.map((lectue, lectureIndex)=>(
+                {chapter.chapterContent.map((lecture, lectureIndex)=>(
                   <div key={lectureIndex} className='flex justify-between 
                   items-center mb-2'>
                     <span>{lectureIndex + 1} {lecture.lectureTitle} - {lecture.
                       lectureDuration} mins - <a href={lecture.lectureUrl}
                       target="_blank" className='text-blue-500'>Link</a> - {lecture.isPreviewFree
-                      ? 'Frre Preview' : 'Paid'}</span>
+                      ? 'Free Preview' : 'Paid'}</span>
                       <img src={cross_icon} alt="" onClick={()=>handleLecture
                       ('remove',chapter.chapterId, lectureIndex)}
                       className='cursor-pointer w-3 h-3 md:w-4 md:h-4 hover:opacity-70 transition-opacity'/>
@@ -227,7 +258,7 @@ return (
                 })}
                 />
                 </div>
-                <button type='button' className='w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 sm:py-3 rounded-md text-sm sm:text-base font-medium transition-colors'>Add Lecture</button>
+                <button type='button' className='w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 sm:py-3 rounded-md text-sm sm:text-base font-medium transition-colors' onClick={addLecture}>Add Lecture</button>
 
                 <img onClick={() => setShowPopup(false)} src={cross_icon}
                 className='absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4 w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 cursor-pointer hover:opacity-70 transition-opacity' alt='Close'/>
@@ -240,7 +271,7 @@ return (
         }
       </div>
       <button type='submit' className='bg-black text-white w-max py-2.5 px-8
-      rounded my-4'>
+      rounded my-4' >
         ADD</button>
 
      </form>
