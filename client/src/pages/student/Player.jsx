@@ -7,14 +7,23 @@ import YouTube from 'react-youtube'
 import { default as assets } from '../../assets/assets.js'
 import Footer from '../../components/student/Footer.jsx'
 import Rating from '../../components/student/Rating.jsx'
+import axios from 'axios'
+import { toast } from 'react-toastify'
+import Loading from '../../components/student/Loading.jsx'
 
 
 const Player = () => {
-    const { enrolledCourses, calculateChapterTime } = useContext(AppContext)
+    const { enrolledCourses, calculateChapterTime, backendUrl, getToken, userData, 
+        fetchUserEnrolledCourses
+    } = useContext(AppContext)
+    
     const { courseId } = useParams()
     const [courseData, setCourseData] = useState(null)
     const [openSections, setOpenSections] = useState({})
     const [playerData, setPlayerData] = useState(null)
+    const [progressData, setProgressData] = useState(null)
+    const [initialRating, setInitialRating] = useState(0)
+
 
     // Define isAlreadyEnrolled to check if user is enrolled in the course
     const isAlreadyEnrolled = enrolledCourses.some(course => course._id === courseId);
@@ -22,8 +31,13 @@ const Player = () => {
     const getCourseData = () => {
         const foundCourse = enrolledCourses.find(course => course._id === courseId);
         if (foundCourse) {
-            setCourseData(foundCourse);
-        }
+            setCourseData(foundCourse)
+            course.courseRatings.map((item)=>{
+                if(item.userId === userData._id){
+                    setInitialRating(item.rating)
+                }
+                })    
+            }
     }
 
     // Define the missing function to calculate total number of lectures
@@ -55,10 +69,66 @@ const Player = () => {
     };
 
     useEffect(() => {
-        getCourseData()
-    }, [enrolledCourses, courseId])
+        if(enrolledCourses.length > 0){
+            getCourseData()
+        }
+        }, [enrolledCourses, courseId])
 
-    return (
+        const markLectureAsCompleted = async (lectureId)=>{
+            try {
+                const token = await getToken()
+                const { data } = await axios.post(backendUrl + '/api/user/update-course-progress', 
+                    {courseId, lectureId}, { headers: { Authorization: `Bearer ${token}`}})
+
+                    if (data.success){
+                        toast.success(data.message)
+                        getCourseProgress()
+                    }else{
+                        toast.error(data.message)
+                    }
+               
+            } catch (error) {
+                toast.error(error.message)
+            }
+        }
+        const getCourseProgress = async ()=>{
+            try {
+                const token = await getToken()
+                const { data } = await axios.post(backendUrl + '/api/user/get-course-progress', {courseId}, 
+                    { headers: { Authorization: `Bearer ${token}`}})
+
+                    if (data.successs){
+                        setProgressData(data.progressData)
+                    }else{
+                        toast.error(data.message)
+                    }
+                    } catch (error) {
+                toast.error(error.message)
+            }
+        }
+
+        const handleRate = async (rating)=>{
+            try {
+                const token = await getToken()
+                const { data } = await axios.post(backendUrl + '/api/user/add-rating', 
+                    {courseId, rating}, { headers: { Authorization: `Bearer ${token}`}})
+                
+                    if(data.success) {
+                        toast.success(data.message)
+                        fetchUserEnrolledCourses()
+                    }else{
+                        toast.error(data.message)
+                    }
+            } catch (error) {
+                toast.error(error.message)
+            }
+        }
+
+        useEffect(()=>{
+            getCourseProgress()
+        },[])
+
+    return courseData ? (
         <>
             <div className='p-4 sm:p-10 flex flex-col-reverse md:grid md:grid-cols-2 gap-10 md:px-36'>
                 {/* Left column */}
@@ -116,7 +186,9 @@ const Player = () => {
                                                                 onClick={() => handleLessonClick(lesson, index, lessonIndex)}
                                                             >
                                                                 <img 
-                                                                    src={lesson.isCompleted ? assets.blue_tick : assets.play_icon} 
+                                                                    src={progressData && progressData.
+                                                                        lectureCompleted.includes(playerData.lectureId) ? assets.blue_tick : assets.play_icon} 
+            
                                                                     alt="play" 
                                                                     className="w-4 h-4 mr-2" 
                                                                 />
@@ -139,7 +211,7 @@ const Player = () => {
                     </div>
                     <div className='flex items-center gap-2 py-3 mt-10'>
                         <h1 className='text-xl font-bold'>Rate this course:</h1>
-                        <Rating initialRating={0}/>
+                        <Rating initialRating={initialRating} onRate={handleRate}/>
                     </div>
                 </div>
 
@@ -174,8 +246,9 @@ const Player = () => {
                                 <p className='text-sm sm:text-base font-medium'>
                                     {playerData.chapter}.{playerData.lecture} {playerData.lectureTitle}
                                 </p>
-                                <button className='text-blue-600 hover:text-blue-800 font-medium text-sm px-3 py-1 border border-blue-600 rounded hover:bg-blue-50 transition-colors'>
-                                    {playerData.isCompleted ? 'Completed' : 'Mark Complete'}
+                                <button onClick={()=> markLectureAsCompleted(playerData.lectureId)} className='text-blue-600 hover:text-blue-800 font-medium text-sm px-3 py-1 border border-blue-600 rounded hover:bg-blue-50 transition-colors'>
+                                    {progressData && progressData.
+                                    lectureCompleted.includes(playerData.lectureId) ? 'Completed' : 'Mark Complete'}
                                 </button>
                             </div>
                         </div>
@@ -209,7 +282,7 @@ const Player = () => {
             </div>
             <Footer />
         </>
-    )
+    ) : <Loading />
 }
 
 export default Player

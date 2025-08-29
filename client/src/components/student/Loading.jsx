@@ -1,6 +1,20 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const Loading = () => {
+  // Move hooks inside the component function
+  const { path } = useParams()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (path) {
+      const timer = setTimeout(() => {
+        navigate(`/${path}`)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, []) // Add dependencies to useEffect
+
   return (
     <div className='min-h-screen flex items-center justify-center'>
       <div className='w-16 sm:w-20 aspect-square border-4

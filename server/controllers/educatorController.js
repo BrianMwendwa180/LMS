@@ -35,6 +35,13 @@ export const addCourse = async (req, res)=>{
          
         const parsedCourseData = await JSON.parse(courseData)
         parsedCourseData.educator = educatorId
+        
+        // Handle legacy field name for backward compatibility
+        if (parsedCourseData.courseDescrimption) {
+            parsedCourseData.courseDescription = parsedCourseData.courseDescrimption;
+            delete parsedCourseData.courseDescrimption;
+        }
+        
         const newCourse = await Course.create(parsedCourseData)
         const imageUpload = await cloudinary.uploader.upload(imageFile.path)
         newCourse.courseThumbnail = imageUpload.secure_url
@@ -62,7 +69,7 @@ export const getEducatorCourses = async (req, res)=>{
 
 // Get Educator Dashboard Data ( Total Earning, Enrolled Students, No of Courses)
 
-export const educatorDashboardData = async ()=>{
+export const educatorDashboardData = async (req, res)=>{
     try {
         const educator = req.auth().userId;
         const courses = await Course.find({educator});

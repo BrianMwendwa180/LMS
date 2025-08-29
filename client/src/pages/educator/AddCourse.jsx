@@ -1,12 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import uniqid from 'uniqid';
 import Quill from 'quill';
 import file_upload_icon from '../../assets/file_upload_icon.png'
 import down_icon from '../../assets/down_icon .png'
 import cross_icon from '../../assets/cross_icon.png'
+import { AppContext } from '../../context/AppContext';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 
 
 const AddCourse = () => {
+
+  const { backendUrl, getToken, } = useContext(AppContext)
   const quillRef = useRef(null);
   const editorRef = useRef(null);
 
@@ -23,9 +28,10 @@ const AddCourse = () => {
       lectureTitle: '',
       lectureDuration: '',
       lectureUrl: '',
-      isPreview: false,
+      isPreviewFree: false,
     }
   )
+  const [isSubmitting, setIsSubmitting] = useState(false)
 const handleChapter = (action,chapterId) => {
   if (action === 'add') {
     const title = prompt('Enter Chapter Name:');
@@ -95,7 +101,73 @@ const addLecture = () => {
 };
 
 const handleSubmit = async (e) => {
-  e.preventDefault()
+  try {
+    e.preventDefault()
+    
+    // Validate required fields
+    if(!image){
+      toast.error('Please select a course thumbnail')
+      return
+    }
+    
+    if(!courseTitle.trim()){
+      toast.error('Please enter a course title')
+      return
+    }
+    
+    if(!quillRef.current || !quillRef.current.root.innerHTML.trim()){
+      toast.error('Please add a course description')
+      return
+    }
+    
+    if(chapters.length === 0){
+      toast.error('Please add at least one chapter to the course')
+      return
+    }
+    
+    // Validate that all chapters have at least one lecture
+    const chaptersWithNoLectures = chapters.filter(chapter => chapter.chapterContent.length === 0);
+    if(chaptersWithNoLectures.length > 0){
+      toast.error(`Chapter "${chaptersWithNoLectures[0].chapterTitle}" has no lectures. Please add at least one lecture to each chapter.`)
+      return
+    }
+    
+    setIsSubmitting(true)
+    
+    const courseData = {
+      courseTitle,
+      courseDescription: quillRef.current.root.innerHTML,
+      coursePrice: Number(coursePrice),
+      discount: Number(discount),
+      courseContent: chapters,
+    }
+
+    const formData = new FormData()
+    formData.append('courseData', JSON.stringify(courseData))
+    formData.append('image', image)
+
+    const token = await getToken()
+    const {data} = await axios.post(backendUrl + '/api/educator/add-course', 
+      formData, { headers: { Authorization: `Bearer ${token}`}})
+
+      if (data.success){
+        toast.success(data.message)
+        setCourseTitle('')
+        setCoursePrice(0)
+        setDiscount(0)
+        setImage(null)
+        setChapters([])
+        quillRef.current.root.innerHTML = ""
+      }else{
+        toast.error(data.message)
+      }
+
+  } catch (error) {
+    toast.error(error.message)
+  } finally {
+    setIsSubmitting(false)
+  }
+  
 };
 
 
@@ -270,9 +342,15 @@ return (
 
         }
       </div>
-      <button type='submit' className='bg-black text-white w-max py-2.5 px-8
-      rounded my-4' >
-        ADD</button>
+      <button 
+        type='submit' 
+        className={`bg-black text-white w-max py-2.5 px-8 rounded my-4 transition-opacity ${
+          isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800'
+        }`}
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? 'Adding Course...' : 'ADD'}
+      </button>
 
      </form>
     </div>

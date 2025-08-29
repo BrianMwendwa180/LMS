@@ -96,7 +96,7 @@ const ImageStarRating = ({ rating }) => {
         <h3 className='text-lg font-semibold mb-2 line-clamp-2'>
           {getHighlightedText(course.title, highlightTerm)}
         </h3>
-        <p className='text-gray-600 text-sm mb-3'>Brian Mwendwa</p>
+        <p className='text-gray-600 text-sm mb-3'>{course.educator.name}</p>
         
         <div className='flex items-center space-x-2 mb-3'>
           <span className='text-sm font-medium text-gray-700'>

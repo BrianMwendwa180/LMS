@@ -1,8 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { dummyStudentEnrolled } from '../../assets/assets'
 import Loading from '../../components/student/Loading'
+import { AppContext } from '../../context/AppContext'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const StudentsEnrolled = () => {
+
+  const {backendUrl, getToken, isEducator} = useContext(AppContext)
   const [enrolledStudents, setEnrolledStudents] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('name')
@@ -10,14 +15,28 @@ const StudentsEnrolled = () => {
 
   const fetchEnrolledStudents = async () => {
     // Simulate API delay
+    try {
+        const token = await getToken()
+        const { data } = await axios.get(backendUrl + '/api/educator/enrolled-students', { headers: { Authorization: `Bearer ${token}`}})
+        if (data.success){
+          setEnrolledStudents(data.enrolledStudents.reverse())
+        }else{
+          toast.error(data.message)
+        }
+      } catch (error) {
+        toast.error(error.message)
+        
+      }
     setTimeout(() => {
-      setEnrolledStudents(dummyStudentEnrolled)
+      
+      
     }, 500)
   }
 
   useEffect(() => {
+    if(isEducator)
     fetchEnrolledStudents()
-  }, [])
+  }, [isEducator])
 
   // Filter and sort students
   const filteredAndSortedStudents = enrolledStudents

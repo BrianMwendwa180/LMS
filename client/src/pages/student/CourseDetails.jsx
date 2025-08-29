@@ -10,6 +10,8 @@ import humanizeDuration from 'humanize-duration'
 // import star_blank from '../../assets/star_blank.png' // Add this if you have a blank star image
 import Footer from '../../components/student/Footer'
 import YouTube from 'react-youtube'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 
 const CourseDetails = () => {
@@ -22,7 +24,8 @@ const CourseDetails = () => {
 
   // Get context functions
   const {allCourses, calculateRating, calculateNoOfLectures, calculateCourseDuration,
-        calculateChapterTime}  = useContext(AppContext)
+        calculateChapterTime, currency, backendUrl, userData, 
+        getToken}  = useContext(AppContext)
   
   // Safe rating calculation function
   const safeCalculateRating = (course) => {
@@ -118,19 +121,53 @@ const CourseDetails = () => {
     );
   };
 
-  const fetchCourseData = () => {
-    if (!id || isNaN(Number(id))) {
-      setCourseData(null)
-      return
+  const fetchCourseData = async() => {
+    try {
+      const {data} = await axios.get(backendUrl + '/api/course/' + id)
+
+      if(data.success){
+        setCourseData(data.courseData)
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
     }
-    const courseId = Number(id)
-    const foundCourse = assets.courses.find(course => course.id === courseId)
-    setCourseData(foundCourse)
   }
+
+   const enrollCourse = async ()=>{
+    try {
+      if(!userData){
+        return toast.warn('Login to Enroll')
+      }
+      if(isAlreadyEnrolled){
+        return toast.warn('Already Enrolled')
+      }
+      const token = await getToken();
+
+      const {data } = await axios.post(backendUrl + '/api/user/purchase',{courseId:
+        courseData._id
+      }, {headers: { Authorization: `Bearer ${token}`}})
+      if (data.success){
+        const {session_url} = data
+        window.location.replace(session_url)
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+   }
 
   useEffect(() => {
     fetchCourseData()
-  }, [id])
+  }, [])
+
+   useEffect(() => {
+    if(userData && courseData){
+      setIsAlreadyEnrolled(userData.enrolledCourses.includes(courseData._id))
+    }
+  }, [userData, courseData])
 
   const toggleSection = (index) =>{
     setOpenSections(prev => ({
@@ -159,10 +196,22 @@ const CourseDetails = () => {
                 <p className="text-gray-600">Duration: {course.duration || 'N/A'}</p>
                 <p className="text-gray-600">Level: {course.level || 'N/A'}</p>
               </div>
-              <button 
+              <button onClick={enrollCourse}
                 className='md:mt-6 mt-4 w-full py-3 rounded bg-blue-600 text-white font-medium'>
                 {isAlreadyEnrolled ? 'Already Enrolled' : 'Enroll Now'}
               </button>
+
+              <div className='pt-6'>
+                <p className='md:text-xl text-lg font-medium text-gray-800'>What's in the course?</p>
+                <ul className='ml-4 pt-2 text-sm md:text-default list-disc
+                text-gray-500'>
+                  <li>Lifetime access with free updates.</li>
+                  <li>Step-by-step, hands-on project guidance.</li>
+                  <li>Downloadable resources and source code.</li>
+                  <li>Quizzes to test your knowledge. </li>
+                  <li>Certificate of completion.</li>
+                </ul>
+              </div>
             </div>
           ))}
         </div>
@@ -180,84 +229,6 @@ const CourseDetails = () => {
     )
   }
 
-  // When courseData exists, render the course details
-  return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">{courseData.title}</h1>
-      <p className="text-gray-700 mb-4">{courseData.description}</p>
-      
-      <div className="mb-6">
-        <StarRating rating={currentRating} />
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h2 className="text-xl font-semibold mb-3">Course Information</h2>
-          <p className="text-gray-600 mb-2">Instructor: {courseData.instructor?.name || courseData.instructor || 'N/A'}</p>
-          <p className="text-gray-600 mb-2">Duration: {courseData.duration || 'N/A'}</p>
-          <p className="text-gray-600 mb-2">Level: {courseData.level || 'N/A'}</p>
-          <p className="text-gray-600 mb-4">
-            Lectures: {calculateNoOfLectures ? calculateNoOfLectures(courseData) : 'N/A'}
-          </p>
-          
-          <button 
-            className='w-full py-3 rounded bg-blue-600 text-white font-medium'>
-            {isAlreadyEnrolled ? 'Already Enrolled' : 'Enroll Now'}
-          </button>
-        </div>
-        
-        <div>
-          {courseData.chapters && (
-            <div>
-              <h2 className="text-xl font-semibold mb-3">Course Content</h2>
-              {courseData.chapters.map((chapter, index) => (
-                <div key={index} className="border rounded mb-2">
-                  <button
-                    onClick={() => toggleSection(index)}
-                    className="w-full text-left p-3 flex justify-between items-center hover:bg-gray-50"
-                  >
-                    <span className="font-medium">{chapter.title}</span>
-                    <img 
-                      src={downArrow} 
-                      alt="toggle" 
-                      className={`w-4 h-4 transition-transform ${openSections[index] ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-                  {openSections[index] && (
-                    <div className="px-3 pb-3">
-                      {chapter.lessons && chapter.lessons.map((lesson, lessonIndex) => (
-                        <div key={lessonIndex} className="py-2 flex items-center">
-                          <img src={play_icon} alt="play" className="w-4 h-4 mr-2" />
-                          <span className="text-sm">{lesson.title}</span>
-                          {lesson.duration && (
-                            <span className="text-xs text-gray-500 ml-auto">
-                              {lesson.duration}
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {playerData && (
-        <div className="mt-6">
-          <YouTube
-            videoId={playerData.videoId}
-            opts={{ playerVars: { autoplay: 1 } }}
-            iframeClassName="w-full aspect-video"
-          />
-        </div>
-      )}
-      
-      <Footer />
-    </div>
-  )
 }
 
 export default CourseDetails

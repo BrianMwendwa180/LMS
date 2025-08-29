@@ -7,18 +7,35 @@ import earning_icon from '../../assets/earning_icon.png'
 import patients_icon from '../../assets/patients_icon.png'
 import profile_img from '../../assets/profile_img.png'
 import { dummyDashboardData } from '../../assets/assets' // Import the dummy data
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Dashboard = () => {
-  const { currency } = useContext(AppContext)
+  const { currency, backendUrl, isEducator, getToken } = useContext(AppContext)
   const [dashboardData, setDashboardData] = useState(null)
 
   const fetchDashboardData = async () => {
-    setDashboardData(dummyDashboardData)
+    try {
+      const token = await getToken()
+      const { data } = await axios.get(backendUrl + '/api/educator/dashboard', { headers: { Authorization: `Bearer ${token}`}})
+
+      if(data.success){
+        setDashboardData(data.dashboardData)
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+      
+    }
   }
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [])
+    if(isEducator){
+      fetchDashboardData()
+    }
+
+  }, [isEducator])
 
   return dashboardData ? (
     <div className='min-h-screen flex flex-col items-start justify-between gap-8 md:p-8 md:pb-0 p-4 pt-8 pb-0'>
