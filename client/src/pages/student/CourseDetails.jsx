@@ -123,7 +123,7 @@ const CourseDetails = () => {
 
   const fetchCourseData = async() => {
     try {
-      const {data} = await axios.get(backendUrl + '/api/course/' + id)
+      const {data} = await axios.get(`${backendUrl}/api/course/${id}`)
 
       if(data.success){
         setCourseData(data.courseData)
@@ -145,7 +145,7 @@ const CourseDetails = () => {
       }
       const token = await getToken();
 
-      const {data } = await axios.post(backendUrl + '/api/user/purchase',{courseId:
+      const {data } = await axios.post(`${backendUrl}/api/user/purchase`,{courseId:
         courseData._id
       }, {headers: { Authorization: `Bearer ${token}`}})
       if (data.success){
@@ -164,8 +164,10 @@ const CourseDetails = () => {
   }, [])
 
    useEffect(() => {
-    if(userData && courseData){
+    if(userData && courseData && userData.enrolledCourses){
       setIsAlreadyEnrolled(userData.enrolledCourses.includes(courseData._id))
+    } else {
+      setIsAlreadyEnrolled(false)
     }
   }, [userData, courseData])
 

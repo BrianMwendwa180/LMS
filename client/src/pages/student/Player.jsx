@@ -32,12 +32,14 @@ const Player = () => {
         const foundCourse = enrolledCourses.find(course => course._id === courseId);
         if (foundCourse) {
             setCourseData(foundCourse)
-            course.courseRatings.map((item)=>{
-                if(item.userId === userData._id){
-                    setInitialRating(item.rating)
-                }
+            if(userData && userData._id){
+                foundCourse.courseRatings.map((item)=>{
+                    if(item.userId === userData._id){
+                        setInitialRating(item.rating)
+                    }
                 })    
             }
+        }
     }
 
     // Define the missing function to calculate total number of lectures
@@ -77,7 +79,7 @@ const Player = () => {
         const markLectureAsCompleted = async (lectureId)=>{
             try {
                 const token = await getToken()
-                const { data } = await axios.post(backendUrl + '/api/user/update-course-progress', 
+                const { data } = await axios.post(`${backendUrl}/api/user/update-course-progress`,
                     {courseId, lectureId}, { headers: { Authorization: `Bearer ${token}`}})
 
                     if (data.success){
@@ -94,7 +96,7 @@ const Player = () => {
         const getCourseProgress = async ()=>{
             try {
                 const token = await getToken()
-                const { data } = await axios.post(backendUrl + '/api/user/get-course-progress', {courseId}, 
+                const { data } = await axios.post(`${backendUrl}/api/user/get-course-progress`, {courseId}, 
                     { headers: { Authorization: `Bearer ${token}`}})
 
                     if (data.successs){
@@ -110,7 +112,7 @@ const Player = () => {
         const handleRate = async (rating)=>{
             try {
                 const token = await getToken()
-                const { data } = await axios.post(backendUrl + '/api/user/add-rating', 
+                const { data } = await axios.post(`${backendUrl}/api/user/add-rating`, 
                     {courseId, rating}, { headers: { Authorization: `Bearer ${token}`}})
                 
                     if(data.success) {
