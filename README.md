@@ -125,5 +125,8 @@ STRIPE_WEBHOOK_SECRET = "whsec_gtnv7f7OKtTtERJkZnOannds3ejEDn6k"
 - Backend uses Clerk middleware for authentication.
 - Frontend sends Bearer token in Authorization header for protected routes.
 
+##Live Demo
+https://lms-frontend-nine-nu.vercel.app/
+
 ## License
 MIT License
