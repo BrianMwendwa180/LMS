@@ -20,6 +20,7 @@ export const clerkWebhooks = async (req, res)=>{
 
         switch (type) {
             case 'user.created': {
+                console.log('Creating user in DB:', data.id);
                 const userData = {
                     _id: data.id,
                     email: data.email_addresses[0].email_address,
@@ -27,6 +28,7 @@ export const clerkWebhooks = async (req, res)=>{
                     imageUrl: data.image_url,
                      }
                      await User.create(userData)
+                     console.log('User created successfully:', data.id);
                      res.json({})
                      break;
                  }
@@ -86,6 +88,11 @@ export const stripeWebhooks = async(req, res)=>{
             const purchaseData = await Purchase.findById(purchaseId)
             const userData = await User.findById(purchaseData.userId)
             const courseData = await Course.findById(purchaseData.courseId.toString())
+
+            if (!userData || !courseData) {
+                console.error('User or Course not found');
+                return res.json({received: true});
+            }
 
             courseData.enrolledStudents.push(userData)
             await courseData.save()

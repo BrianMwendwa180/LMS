@@ -7,4 +7,7 @@ export default defineConfig({
   plugins: [react(),
      tailwindcss(),
   ],
+  server: {
+    // Proxy removed to use CORS instead
+  },
 })

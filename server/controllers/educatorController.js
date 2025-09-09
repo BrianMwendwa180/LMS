@@ -8,7 +8,7 @@ import User from '../models/User.js'
 //update role to educator
 export const updateRoleToEducator = async (req, res) => {
     try {
-        const userId = req.auth().userId
+        const userId = req.auth?.userId
 
         await clerkClient.users.updateUserMetadata(userId, {
             publicMetadata: {
@@ -27,7 +27,7 @@ export const addCourse = async (req, res)=>{
     try {
         const { courseData } = req.body
         const imageFile = req.file
-        const educatorId = req.auth().userId
+        const educatorId = req.auth.userId
 
         if(!imageFile){
             return res.json({ success: false, message: 'Thumbnail Not Attached'})
@@ -119,7 +119,7 @@ export const getEnrolledStudentsData = async (req, res)=>{
         const purchases = await Purchase.find({
             courseId: { $in: courseIds },
             status: 'completed'
-        
+
         }).populate('userId', 'name imageUrl').populate('courseId', 'courseTitle')
 
         const enrolledStudents = purchases.map(purchase => ({

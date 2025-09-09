@@ -27,7 +27,7 @@ export const AppContextProvider = (props) => {
     // Fetch All Courses
     const fetchAllCourses = async () => {
         try {
-            const {data} = await axios.get(`${backendUrl}/api/course/all`);
+            const {data} = await axios.get('http://localhost:5000/api/course/all');
 
             if(data.success){
                 setAllCourses(data.courses)
@@ -48,11 +48,11 @@ export const AppContextProvider = (props) => {
         try {
             const token = await getToken();
 
-            const {data} = await axios.get(`${backendUrl}/api/user/data`, {headers:
+            const {data} = await axios.get('http://localhost:5000/api/user/data', {headers:
                 {Authorization: `Bearer ${token}`} })
-            
+
                 if(data.success){
-                    setUserData(data.user)
+                    setUserData(data.user ? { ...data.user, enrolledCourses: data.user.enrolledCourses || [] } : null)
                 }else{
                     toast.error(data.message)
                 }
@@ -116,15 +116,15 @@ const calculateCourseDuration = (course)=>{
    const fetchUserEnrolledCourses = async () => {
     try {
         const token = await getToken();
-    const { data } = await axios.get(`${backendUrl}/api/user/enrolled-courses`,
+    const { data } = await axios.get('/api/user/enrolled-courses',
         {headers: { Authorization: `Bearer ${token}`}})
-    
+
         if(data.success){
             setEnrolledCourses(data.enrolledCourses.reverse())
         }else{
             toast.error(data.message)
         }
-   
+
     } catch (error) {
         toast.error(error.message)
     }
