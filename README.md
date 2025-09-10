@@ -47,27 +47,7 @@ This project is a Learning Management System (LMS) web application that allows u
    ```
 3. Create a `.env` file with the following variables:
    ```
-  CURRENCY = 'USD'
-
-MONGODB_URI = 'mongodb+srv://academy:academy123@cluster0.rwwzbuv.mongodb.net'
-
-CLERK_WEBHOOK_SECRET = 'whsec_nrRdjmLBkVKCtft8XTmu3KPLp9f/B7xK'
-
-CLERK_PUBLISHABLE_KEY=pk_test_cm9idXN0LWdvc2hhd2stNzcuY2xlcmsuYWNjb3VudHMuZGV2JA
-CLERK_SECRET_KEY=sk_test_IG76WCFPXg4LTwlHgu52oVraoOAwtZoIiKcgnkxTX0
-
-
-CLOUDINARY_NAME = "drtg9x8bz"
-CLOUDINARY_API_KEY = "924646812877224"
-CLOUDINARY_SECRET_KEY = "tEK2BniibHSRryRy-sGy2Lm2waI"
-
-STRIPE_PUBLISHABLE_KEY = 'pk_test_51RyowFIOk6GRMCa8ekkUmoad40kyVbmQUPI
-ZnyjwktC0UUtuj5K25krm4QKszQXKXRgL0ZsdVAkPZWGSmWhZ6mP600jilqqJFs'
-
-STRIPE_SECRET_KEY = 'sk_test_51RyowFIOk6GRMCa8w1FL2H5o5h8f
-T43y5KOw2kvz86TUeziiQOGWdVjEBLwD5QtmRSbei6iykOS2vg1vdHECzAg300YK1ibpVf'
-
-STRIPE_WEBHOOK_SECRET = "whsec_gtnv7f7OKtTtERJkZnOannds3ejEDn6k"
+  from .env.example file
    ```
 4. Start the backend server:
    ```
